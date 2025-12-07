@@ -122,7 +122,7 @@ bool readFileHeader(FILE* archiveFile, struct FileHeader* header, char** fileNam
     return true;
 }
 
-bool writeFile(FILE* archiveFile, const char* dirPath)
+bool copyNextFile(FILE* archiveFile, const char* dirPath)
 {
     struct FileHeader header;
     char* fileName;
@@ -172,25 +172,27 @@ bool unarchive(const char* filePath)
     }
 
     char* dirName = getFileName(filePath, true);
+    if (!dirName) dirName = "archive";
     if (MKDIR(dirName) != 0)
     {
         perror("Failed to create directory");
+        free(dirName);
         fclose(archiveFile);
         return false;
     }
 
     struct ArchiveHeader header;
-
     if (!readArchiveHeader(archiveFile, &header))
     {
         perror("Failed to read archive header");
+        free(dirName);
         fclose(archiveFile);
         return false;
     }
 
     for (int i = 0; i < header.fileCount; i++)
     {
-        if (!writeFile(archiveFile, dirName))
+        if (!copyNextFile(archiveFile, dirName))
         {
             printf("Failed to unarchive file %d", i + 1);
         }

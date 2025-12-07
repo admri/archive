@@ -11,7 +11,7 @@
 bool readArchiveHeader(FILE* file, struct ArchiveHeader* header);
 
 bool readFileHeader(FILE* archiveFile, struct FileHeader* header, char** fileName);
-bool writeFile(FILE* archiveFile, const char* dirPath);
+bool copyNextFile(FILE* archiveFile, const char* dirPath);
 
 bool unarchive(const char* filePath);
 

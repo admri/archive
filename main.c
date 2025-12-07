@@ -19,6 +19,7 @@
  */
 
 #include "archive.h"
+#include "file.h"
 #include "unarchive.h"
 
 #include <stdbool.h>
@@ -64,7 +65,7 @@ int main(int argc, char** argv)
             {
                 header.fileCount++;
                 fseek(archive.file, 4 + sizeof(uint16_t), SEEK_SET);
-                if (!writeBlock(archive.file, (const char*)&header.fileCount, sizeof(header.fileCount)))
+                if (!writeFile(archive.file, (const char*)&header.fileCount, sizeof(header.fileCount)))
                 {
                     perror("Failed to update file count in header");
                     return 2;
@@ -81,7 +82,10 @@ int main(int argc, char** argv)
     }
     else
     {
-        unarchive(archiveFilePath);
+        if (!unarchive(archiveFilePath))
+        {
+            printf("Failed to unarchive %s", archiveFilePath);
+        }
     }
 
     return 0;
