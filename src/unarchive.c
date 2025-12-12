@@ -90,17 +90,41 @@ bool readFileHeader(FILE* archiveFile, struct FileHeader* header, char** fileNam
 
     header->nameLength = read_u16_le(nameLength);
 
-    // File size
-    unsigned char fileSize[sizeof header->size];
+    // Original file size
+    unsigned char origSize[sizeof header->origSize];
 
-    readFile(archiveFile, fileSize, sizeof fileSize, &read);
-    if (read != sizeof fileSize)
+    readFile(archiveFile, origSize, sizeof origSize, &read);
+    if (read != sizeof origSize)
     {
         perror("Failed to read file size");
         return false;
     }
 
-    header->size = read_u64_le(fileSize);
+    header->origSize = read_u64_le(origSize);
+
+    // Compressed file size
+    unsigned char compSize[sizeof header->compSize];
+
+    readFile(archiveFile, compSize, sizeof compSize, &read);
+    if (read != sizeof compSize)
+    {
+        perror("Failed to read compressed file size");
+        return false;
+    }
+
+    header->compSize = read_u64_le(compSize);
+
+    // Flags
+    unsigned char flags[sizeof header->flags];
+
+    readFile(archiveFile, flags, sizeof flags, &read);
+    if (read != sizeof flags)
+    {
+        perror("Failed to read file flags");
+        return false;
+    }
+
+    header->flags = flags[0];
 
     // File name
     *fileName = malloc(header->nameLength + 1);
@@ -147,13 +171,27 @@ bool copyNextFile(FILE* archiveFile, const char* dirPath)
         return false;
     }
 
-    if (!copyFileData(archiveFile, file, header.size))
+    if (header.flags & COMPRESSED_FLAG)
     {
-        perror("Failed to copy data to output file");
-        free(filePath);
-        free(fileName);
-        fclose(file);
-        return false;
+        if (!decompressFileStream(archiveFile, file, header.compSize))
+        {
+            perror("Failed to decompress data to output file");
+            free(filePath);
+            free(fileName);
+            fclose(file);
+            return false;
+        }
+    }
+    else
+    {
+        if (!copyFileData(archiveFile, file, header.origSize))
+        {
+            perror("Failed to copy data to output file");
+            free(filePath);
+            free(fileName);
+            fclose(file);
+            return false;
+        }
     }
 
     free(filePath);

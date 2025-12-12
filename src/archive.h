@@ -28,13 +28,15 @@ struct ArchiveHeader
 struct FileHeader
 {
     uint16_t nameLength;
-    uint64_t size;
-}; // 10 bytes (+ variable-sized file name)
+    uint64_t origSize;
+    uint64_t compSize;
+    uint8_t flags;
+}; // 19 bytes (+ variable-sized file name)
 
 bool writeArchiveHeader(FILE* file, struct ArchiveHeader* header);
 bool createArchive(struct Archive* archive, struct ArchiveHeader* header);
 
-bool writeFileHeader(struct Archive* archive, const char* filePath, uint64_t fileSize);
+bool writeFileHeader(FILE* file, struct FileHeader* header, const char* fileName, long* compSizePos);
 bool addToArchive(struct Archive* archive, const char* filePath);
 
 #endif // ARCHIVE_H
