@@ -63,6 +63,23 @@ bool copyFileData(FILE* in, FILE* out, uint64_t fileSize)
     return true;
 }
 
+uint64_t getFileSize(FILE* file)
+{
+    if (!file) return 0;
+
+    int64_t currentPos = ftell64(file);
+    if (currentPos < 0) return 0;
+
+    if (fseek64(file, 0, SEEK_END) != 0) return 0;
+
+    int64_t size = ftell64(file);
+    if (size < 0) return 0;
+
+    if (fseek64(file, currentPos, SEEK_SET) != 0) return 0;
+
+    return (uint64_t)size;
+}
+
 char* getFileName(const char* filePath, bool stripExtension)
 {
     const char* separator = strrchr(filePath, DIR_SEP);
@@ -81,131 +98,4 @@ char* getFileName(const char* filePath, bool stripExtension)
     }
 
     return fileName;
-}
-
-bool compressFileStream(FILE* inFile, FILE* outFile, uint64_t* outCompSize)
-{
-    if (!inFile || !outFile || !outCompSize) return false;
-
-    unsigned char inBuf[BUFFER_SIZE];
-    unsigned char outBuf[BUFFER_SIZE];
-    uint64_t totalWritten = 0;
-
-    z_stream strm = {0};
-
-    if (deflateInit(&strm, Z_DEFAULT_COMPRESSION) != Z_OK)
-    {
-        fprintf(stderr, "deflateInit failed\n");
-        return false;
-    }
-
-    int flush;
-    do
-    {
-        size_t readBytes;
-        if (!readFile(inFile, (char*)inBuf, BUFFER_SIZE, &readBytes))
-        {
-            deflateEnd(&strm);
-            return false;
-        }
-
-        flush = feof(inFile) ? Z_FINISH : Z_NO_FLUSH;
-        strm.next_in = inBuf;
-        strm.avail_in = (uInt)readBytes;
-
-        do
-        {
-            strm.next_out = outBuf;
-            strm.avail_out = BUFFER_SIZE;
-
-            int ret = deflate(&strm, flush);
-            if (ret == Z_STREAM_ERROR)
-            {
-                deflateEnd(&strm);
-                fprintf(stderr, "deflate error: Z_STREAM_ERROR\n");
-                return false;
-            }
-
-            size_t have = BUFFER_SIZE - strm.avail_out;
-            if (have > 0)
-            {
-                if (!writeFile(outFile, (const char*)outBuf, have))
-                {
-                    deflateEnd(&strm);
-                    return false;
-                }
-                totalWritten += have;
-            }
-        } while (strm.avail_out == 0);
-    } while (flush != Z_FINISH || strm.avail_in > 0);
-
-    deflateEnd(&strm);
-
-    *outCompSize = totalWritten;
-    return true;
-}
-
-bool decompressFileStream(FILE* inFile, FILE* outFile, uint64_t compSize)
-{
-    if (!inFile || !outFile) return false;
-
-    unsigned char inBuf[BUFFER_SIZE];
-    unsigned char outBuf[BUFFER_SIZE];
-
-    z_stream strm = {0};
-    
-    if (inflateInit(&strm) != Z_OK)
-    {
-        fprintf(stderr, "inflateInit failed\n");
-        return false;
-    }
-
-    uint64_t totalRead = 0;
-    int ret = Z_OK;
-
-    while (ret != Z_STREAM_END && totalRead < compSize)
-    {
-        size_t toRead = (compSize - totalRead < BUFFER_SIZE)
-                        ? (size_t)(compSize - totalRead)
-                        : BUFFER_SIZE;
-
-        size_t bytesRead;
-        if (!readFile(inFile, (char*)inBuf, toRead, &bytesRead) || (bytesRead == 0 && !feof(inFile)))
-        {
-            inflateEnd(&strm);
-            return false;
-        }
-
-        totalRead += bytesRead;
-
-        strm.next_in = inBuf;
-        strm.avail_in = (uInt)bytesRead;
-
-        while (strm.avail_in > 0)
-        {
-            strm.next_out = outBuf;
-            strm.avail_out = BUFFER_SIZE;
-
-            ret = inflate(&strm, Z_NO_FLUSH);
-            if (ret != Z_OK && ret != Z_STREAM_END)
-            {
-                inflateEnd(&strm);
-                fprintf(stderr, "inflate error: %d\n", ret);
-                return false;
-            }
-
-            size_t have = BUFFER_SIZE - strm.avail_out;
-            if (have > 0)
-            {
-                if (!writeFile(outFile, (const char*)outBuf, have))
-                {
-                    inflateEnd(&strm);
-                    return false;
-                }
-            }
-        }
-    }
-
-    inflateEnd(&strm);
-    return ret == Z_STREAM_END;
 }

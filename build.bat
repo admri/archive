@@ -1,1 +1,2 @@
-gcc src/*.c -Iexternal/zlib -Lexternal/zlib -lz -static -o arch.exe
+cmake -S . -B build
+cmake --build build
