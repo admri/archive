@@ -24,7 +24,7 @@ add_library(archiver STATIC
 target_link_libraries(archiver PRIVATE zlibstatic)  # or zlib depending on your zlib build
 
 # Add executable
-add_executable(archiver_main tools/archiver_main.c)
+add_executable(arch tools/arch_main.c)
 
 # Link executable to archiver library
-target_link_libraries(archiver_main PRIVATE archiver)
+target_link_libraries(arch PRIVATE archiver)

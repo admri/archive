@@ -1,6 +1,9 @@
 #include "archive_format.h"
 #include "file.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 ArchiveHeader* createArchiveHeader()
 {
     ArchiveHeader* header = (ArchiveHeader*)malloc(sizeof(ArchiveHeader));
@@ -42,8 +45,13 @@ bool updateArchiveHeaderFileCount(FILE* file, uint32_t fileCount)
     return true;
 }
 
-bool readArchiveHeader(FILE* file, ArchiveHeader* header)
+ArchiveHeader* readArchiveHeader(FILE* file)
 {
+    if (!file) return NULL;
+    
+    ArchiveHeader* header = (ArchiveHeader*)malloc(sizeof(ArchiveHeader));
+    if (!header) return NULL;
+    
     size_t read;
 
     // Magic number
@@ -53,7 +61,7 @@ bool readArchiveHeader(FILE* file, ArchiveHeader* header)
     if (read != sizeof magic)
     {
         perror("Failed to read magic number");
-        return false;
+        return NULL;
     }
 
     memcpy(header->magic, magic, sizeof magic);
@@ -65,7 +73,7 @@ bool readArchiveHeader(FILE* file, ArchiveHeader* header)
     if (read != sizeof version)
     {
         perror("Failed to read archive version");
-        return false;
+        return NULL;
     }
 
     header->version = read_u16_le(version);
@@ -78,7 +86,7 @@ bool readArchiveHeader(FILE* file, ArchiveHeader* header)
     if (read != sizeof fileCount)
     {
         perror("Failed to read files count");
-        return false;
+        return NULL;
     }
 
     header->fileCount = read_u32_le(fileCount);
@@ -86,8 +94,8 @@ bool readArchiveHeader(FILE* file, ArchiveHeader* header)
     // Reserved bytes
     if (fseek(file, sizeof header->reserved, SEEK_CUR) != 0)
     {
-        return false;
+        return NULL;
     }
 
-    return true;
+    return header;
 }

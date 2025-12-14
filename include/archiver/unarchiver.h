@@ -9,8 +9,10 @@ extern "C" {
 
 typedef struct Archive Archive;
 
-Archive* archive_open(const char* path);
-bool archive_retrieve_next_file(Archive* archive, const char* output_dir);
+Archive* archiver_open(const char* path);
+bool archiver_retrieveNextFile(Archive* archive, const char* output_dir);
+
+size_t archiver_getFileCount(Archive* archive);
 
 #ifdef __cplusplus
 }

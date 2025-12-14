@@ -19,8 +19,8 @@ typedef struct
 ArchiveHeader* createArchiveHeader();
 void freeArchiveHeader(ArchiveHeader* header);
 
-bool writeArchiveHeader(FILE* file, ArchiveHeader* header);
+bool writeArchiveHeader(FILE* file, const ArchiveHeader* header);
 bool updateArchiveHeaderFileCount(FILE* file, uint32_t fileCount);
-bool readArchiveHeader(FILE* file, ArchiveHeader* header);
+ArchiveHeader* readArchiveHeader(FILE* file);
 
 #endif // ARCHIVE_FORMAT_H

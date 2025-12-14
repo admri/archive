@@ -13,7 +13,7 @@ typedef struct Archive
     size_t currentFileIndex;
 } Archive;
 
-Archive* createArchive(const char* path);
+Archive* createArchive(const char* path, const char* fileMode);
 void freeArchive(Archive* archive);
 
 #endif // ARCHIVE_INTERNAL_H

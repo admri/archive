@@ -9,9 +9,9 @@ extern "C" {
 
 typedef struct Archive Archive;
 
-Archive* archive_create(const char* path);
-bool archive_add_file(struct Archive* archive, const char* path);
-void archive_close(struct Archive* archive);
+Archive* archiver_create(const char* path);
+bool archiver_addFile(struct Archive* archive, const char* path);
+void archiver_close(struct Archive* archive);
 
 #ifdef __cplusplus
 }

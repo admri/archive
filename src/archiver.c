@@ -3,22 +3,24 @@
 #include "archive_internal.h"
 #include "archive_format.h"
 #include "archive_file.h"
+#include "file.h"
 
-Archive* archive_create(const char *path)
+Archive* archiver_create(const char *path)
 {
     if (!path) return NULL;
 
-    Archive* archive;
-    ArchiveHeader* header;
+    Archive* archive = NULL;
+    ArchiveHeader* header = NULL;
 
-    archive = createArchive(path);
-    if (!archive) goto cleanup;
+    archive = createArchive(path, "wb+");
+    if (!archive) return NULL;
 
     header = createArchiveHeader();
     if (!header) goto cleanup;
 
     if (!writeArchiveHeader(archive->file, header)) goto cleanup;
 
+    freeArchiveHeader(header);
     return archive;
 
 cleanup:
@@ -27,19 +29,23 @@ cleanup:
     return NULL;
 }
 
-bool archive_add_file(Archive* archive, const char* path)
+bool archiver_addFile(Archive* archive, const char* path)
 {
     if (!archive || !path) return false;
 
     FILE* file = NULL;
     FileHeader* fileHeader = NULL;
+    char* fileName = NULL;
     uint64_t compSizePos = 0;
     uint64_t compSize = 0;
+    bool success = false;
 
     fileHeader = createFileHeader(path, COMPRESSED_FLAG, &file);
-    if (!fileHeader) goto cleanup;
+    if (!fileHeader) return false;
 
-    if (!writeFileHeader(archive->file, fileHeader, path, &compSizePos)) goto cleanup;
+    fileName = getFileName(path, false);
+    if (!fileName) goto cleanup;
+    if (!writeFileHeader(archive->file, fileHeader, fileName, &compSizePos)) goto cleanup;
 
     if (!compressFileStream(file, archive->file, &compSize)) goto cleanup;
 
@@ -48,15 +54,16 @@ bool archive_add_file(Archive* archive, const char* path)
     archive->fileCount++;
     if (!updateArchiveHeaderFileCount(archive->file, archive->fileCount)) goto cleanup;
 
-    return true;
+    success = true;
 
 cleanup:
     freeFileHeader(fileHeader);
+    free(fileName);
     if (file) fclose(file);
-    return false;
+    return success;
 }
 
-void archive_close(Archive* archive)
+void archiver_close(Archive* archive)
 {
     if (archive) freeArchive(archive);
 }

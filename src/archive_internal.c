@@ -1,28 +1,32 @@
 #include "archive_internal.h"
 
-Archive* createArchive(const char* path)
+#include <stdlib.h>
+#include <string.h>
+
+Archive* createArchive(const char* path, const char* fileMode)
 {
     Archive* archive = malloc(sizeof *archive);
-    if (!archive) return false;
+    if (!archive) return NULL;
 
     archive->filePath = strdup(path);
     if (!archive->filePath)
     {
         free(archive);
-        return false;
+        return NULL;
     }
 
-    archive->file = fopen(path, "wb+");
+    archive->file = fopen(path, fileMode);
     if (!archive->file)
     {
         free((char*)archive->filePath);
         free(archive);
-        return false;
+        return NULL;
     }
 
     archive->fileCount = 0;
+    archive->currentFileIndex = 0;
 
-    return true;
+    return archive;
 }
 
 void freeArchive(Archive *archive)

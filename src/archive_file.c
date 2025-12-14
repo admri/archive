@@ -3,6 +3,8 @@
 
 #include <zlib.h>
 
+#include <stdlib.h>
+
 uint16_t read_u16_le(const unsigned char b[2])
 {
     return ((uint16_t)b[0] |
@@ -31,28 +33,27 @@ FileHeader* createFileHeader(const char* path, uint8_t flags, FILE** outFile)
 {
     if (!path) return NULL;
 
-    FILE* file = fopen(path, "rb");
+    FILE* file = NULL;
+    char* fileName = NULL;
+    FileHeader* header = NULL;
+
+    file = fopen(path, "rb");
     if (!file) return NULL;
 
     uint64_t origSize = getFileSize(file);
 
-    const char* fileName = getFileName((const char*)file, false);
+    fileName = getFileName(path, false);
+    if (!fileName)
+    {
+        fclose(file);
+        return NULL;
+    }
 
     size_t nameLen = strlen(fileName);
-    if (nameLen > UINT16_MAX)
-    {
-        fclose(file);
-        free(fileName);
-        return NULL;
-    }
+    if (nameLen > UINT16_MAX) goto cleanup;
 
-    FileHeader* header = (struct FileHeader*)malloc(sizeof(FileHeader));
-    if (!header)
-    {
-        fclose(file);
-        free(fileName);
-        return NULL;
-    }
+    header = (FileHeader*)malloc(sizeof(FileHeader));
+    if (!header) goto cleanup;
 
     header->nameLength = (uint16_t)nameLen;
     header->origSize = origSize;
@@ -62,6 +63,12 @@ FileHeader* createFileHeader(const char* path, uint8_t flags, FILE** outFile)
     free(fileName);
     *outFile = file;
     return header;
+
+cleanup:
+    if (file) fclose(file);
+    free(fileName);
+    free(header);
+    return NULL;
 }
 
 void freeFileHeader(FileHeader *header)

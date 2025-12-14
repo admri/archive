@@ -2,7 +2,9 @@
 
 #include <zlib.h>
 
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 bool readFile(FILE* file, char* buffer, size_t buffer_size, size_t* bytesRead)
 {
