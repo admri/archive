@@ -1,5 +1,5 @@
-#ifndef ARCHIVE_INTERNAL_H
-#define ARCHIVE_INTERNAL_H
+#ifndef ARCHIVE_H
+#define ARCHIVE_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -16,4 +16,4 @@ typedef struct Archive
 Archive* createArchive(const char* path, const char* fileMode);
 void freeArchive(Archive* archive);
 
-#endif // ARCHIVE_INTERNAL_H
+#endif // ARCHIVE_H

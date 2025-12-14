@@ -1,30 +1,35 @@
 cmake_minimum_required(VERSION 3.16)
-project(archiver_project C)
+project(arch C)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# Add include directories
-include_directories(include)
+option(ARCH_BUILD_TOOLS "Build archiver command-line tools" ON)
 
-# Add external dependencies (zlib)
 add_subdirectory(external/zlib)
 
-# Add the archiver library
-add_library(archiver STATIC
-    src/archiver.c
-    src/archive_internal.c
-    src/archive_format.c
-    src/archive_file.c
-    src/file.c
-    src/unarchiver.c
+file(GLOB_RECURSE ARCH_SOURCES
+    src/*.c
 )
 
-# Link zlib to archiver
-target_link_libraries(archiver PRIVATE zlibstatic)  # or zlib depending on your zlib build
+file(GLOB CONFIGURE_DEPENDS ARCH_HEADERS
+    include/arch/*.h
+)
 
-# Add executable
-add_executable(arch tools/arch_main.c)
+add_library(arch STATIC ${ARCH_SOURCES} ${ARCH_HEADERS})
 
-# Link executable to archiver library
-target_link_libraries(arch PRIVATE archiver)
+target_include_directories(arch PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(arch PRIVATE zlibstatic)
+
+if (ARCH_BUILD_TOOLS)
+    file(GLOB ARCH_TOOL_SOURCES
+        tools/*.c
+    )
+
+    add_executable(arch_cli ${ARCH_TOOL_SOURCES} ${ARCH_HEADERS})
+
+    target_link_libraries(arch_cli PRIVATE arch)
+endif()

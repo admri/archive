@@ -1,14 +1,14 @@
-#include <archiver/unarchiver.h>
+#include <arch/unarchiver.h>
 
-#include "archive_internal.h"
-#include "archive_format.h"
-#include "archive_file.h"
-#include "file.h"
+#include "core/archive.h"
+#include "core/archive_header.h"
+#include "core/file_header.h"
+#include "util/file.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 
-Archive* archiver_open(const char* path)
+Archive* arch_open(const char* path)
 {
     if (!path) return NULL;
 
@@ -31,7 +31,7 @@ Archive* archiver_open(const char* path)
     return archive;
 }
 
-bool archiver_retrieveNextFile(Archive* archive, const char* output_dir)
+bool arch_retrieveNextFile(Archive* archive, const char* output_dir)
 {
     if (!archive || !output_dir) return false;
     if (archive->currentFileIndex >= archive->fileCount) return false;
@@ -78,7 +78,7 @@ cleanup:
     return ok;
 }
 
-size_t archiver_getFileCount(Archive *archive)
+size_t arch_getFileCount(Archive *archive)
 {
     if (!archive) return 0;
     return archive->fileCount;

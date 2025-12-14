@@ -1,5 +1,5 @@
-#ifndef ARCHIVE_FORMAT_H
-#define ARCHIVE_FORMAT_H
+#ifndef ARCHIVE_HEADER_H
+#define ARCHIVE_HEADER_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -8,7 +8,7 @@
 #define ARCHIVE_MAGIC "ARCH"
 #define ARCHIVE_VERSION 1
 
-typedef struct
+typedef struct ArchiveHeader
 {
     char magic[4];
     uint16_t version;
@@ -23,4 +23,4 @@ bool writeArchiveHeader(FILE* file, const ArchiveHeader* header);
 bool updateArchiveHeaderFileCount(FILE* file, uint32_t fileCount);
 ArchiveHeader* readArchiveHeader(FILE* file);
 
-#endif // ARCHIVE_FORMAT_H
+#endif // ARCHIVE_HEADER_H

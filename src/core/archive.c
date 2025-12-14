@@ -1,4 +1,4 @@
-#include "archive_internal.h"
+#include "archive.h"
 
 #include <stdlib.h>
 #include <string.h>

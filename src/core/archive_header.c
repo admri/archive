@@ -1,5 +1,5 @@
-#include "archive_format.h"
-#include "file.h"
+#include "archive_header.h"
+#include "../util/file.h"
 
 #include <stdlib.h>
 #include <string.h>

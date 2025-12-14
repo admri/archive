@@ -1,5 +1,5 @@
-#ifndef ARCHIVE_FILE_H
-#define ARCHIVE_FILE_H
+#ifndef FILE_HEADER_H
+#define FILE_HEADER_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -7,7 +7,7 @@
 
 #define COMPRESSED_FLAG 1
 
-typedef struct
+typedef struct FileHeader
 {
     uint16_t nameLength;
     uint64_t origSize;
@@ -25,4 +25,4 @@ bool readFileHeader(FILE* archiveFile, FileHeader* header, char** fileName);
 bool compressFileStream(FILE* inFile, FILE* outFile, uint64_t* compSize);
 bool decompressFileStream(FILE* inFile, FILE* outFile, uint64_t compSize);
 
-#endif // ARCHIVE_FILE_H
+#endif // FILE_HEADER_H

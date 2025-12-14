@@ -1,11 +1,11 @@
-#include <archiver/archiver.h>
+#include <arch/archiver.h>
 
-#include "archive_internal.h"
-#include "archive_format.h"
-#include "archive_file.h"
-#include "file.h"
+#include "core/archive.h"
+#include "core/archive_header.h"
+#include "core/file_header.h"
+#include "util/file.h"
 
-Archive* archiver_create(const char *path)
+Archive* arch_create(const char *path)
 {
     if (!path) return NULL;
 
@@ -29,7 +29,7 @@ cleanup:
     return NULL;
 }
 
-bool archiver_addFile(Archive* archive, const char* path)
+bool arch_addFile(Archive* archive, const char* path)
 {
     if (!archive || !path) return false;
 
@@ -63,7 +63,7 @@ cleanup:
     return success;
 }
 
-void archiver_close(Archive* archive)
+void arch_close(Archive* archive)
 {
     if (archive) freeArchive(archive);
 }

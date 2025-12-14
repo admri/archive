@@ -1,5 +1,5 @@
-#include "archive_file.h"
-#include "file.h"
+#include "file_header.h"
+#include "../util/file.h"
 
 #include <zlib.h>
 
