@@ -5,6 +5,8 @@
 #include "core/file_header.h"
 #include "util/file.h"
 
+#include <stdlib.h>
+
 Archive* arch_create(const char *path)
 {
     if (!path) return NULL;

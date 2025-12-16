@@ -4,30 +4,7 @@
 #include <zlib.h>
 
 #include <stdlib.h>
-
-uint16_t read_u16_le(const unsigned char b[2])
-{
-    return ((uint16_t)b[0] |
-           ((uint16_t)b[1] << 8));
-}
-
-uint32_t read_u32_le(const unsigned char b[4])
-{
-    return ((uint32_t)b[0] |
-           ((uint32_t)b[1] << 8) |
-           ((uint32_t)b[2] << 16) |
-           ((uint32_t)b[3] << 24));
-}
-
-uint64_t read_u64_le(const unsigned char b[8])
-{
-    uint64_t res = 0;
-    for (int i = 0; i < 8; i++)
-    {
-        res |= (uint64_t)b[i] << (8 * i);
-    }
-    return res;
-}
+#include <string.h>
 
 bool createFileHeader(const char* path, uint8_t flags, FileHeader* header, FILE** outFile)
 {
