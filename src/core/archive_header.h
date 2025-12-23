@@ -1,20 +1,11 @@
 #ifndef ARCHIVE_HEADER_H
 #define ARCHIVE_HEADER_H
 
+#include <arch/arch_types.h>
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-
-#define ARCHIVE_MAGIC "ARCH"
-#define ARCHIVE_VERSION 1
-
-typedef struct ArchiveHeader
-{
-    char magic[4];
-    uint16_t version;
-    uint32_t fileCount;
-    char reserved[20];
-} ArchiveHeader; // 32 bytes
 
 bool createArchiveHeader(ArchiveHeader* header);
 void freeArchiveHeader(ArchiveHeader* header);

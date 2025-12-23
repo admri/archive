@@ -1,6 +1,8 @@
 #ifndef ARCHIVER_H
 #define ARCHIVER_H
 
+#include <arch/arch_errors.h>
+
 #include <stdbool.h>
 
 #ifdef __cplusplus
@@ -9,8 +11,8 @@ extern "C" {
 
 typedef struct Archive Archive;
 
-Archive* arch_create(const char* path);
-bool arch_addFile(struct Archive* archive, const char* path);
+ArchResult arch_create(const char* path, Archive** outArchive);
+ArchResult arch_addFile(struct Archive* archive, const char* path);
 void arch_close(struct Archive* archive);
 
 #ifdef __cplusplus

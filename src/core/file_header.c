@@ -26,7 +26,7 @@ bool createFileHeader(const char* path, uint8_t flags, FileHeader* header, FILE*
     size_t nameLen = strlen(fileName);
     if (nameLen > UINT16_MAX) goto cleanup;
 
-    header->magic = FILE_MAGIC;
+    header->magic = ARCH_FILE_MAGIC;
     header->nameLength = (uint16_t)nameLen;
     header->origSize = *outOrigSize;
     header->compSize = 0;

@@ -8,8 +8,8 @@ bool createArchiveHeader(ArchiveHeader* header)
 {
     if (!header) return false;
 
-    memcpy(header->magic, ARCHIVE_MAGIC, sizeof(header->magic));
-    header->version = ARCHIVE_VERSION;
+    header->magic = ARCH_MAGIC;
+    header->version = ARCH_VERSION;
     header->fileCount = 0;
     memset(header->reserved, 0, sizeof(header->reserved));
 
@@ -23,7 +23,7 @@ void freeArchiveHeader(ArchiveHeader *header)
 
 bool writeArchiveHeader(FILE* file, const ArchiveHeader* header)
 {
-    if (!writeFile(file, header->magic, sizeof(header->magic))) return false;
+    if (!writeFile(file, (const char*)&header->magic, sizeof(header->magic))) return false;
     if (!writeFile(file, (const char*)&header->version, sizeof(header->version))) return false;
     if (!writeFile(file, (const char*)&header->fileCount, sizeof(header->fileCount))) return false;
     if (!writeFile(file, header->reserved, sizeof(header->reserved))) return false;
@@ -60,7 +60,7 @@ bool readArchiveHeader(FILE* file, ArchiveHeader* header)
         return false;
     }
 
-    memcpy(header->magic, magic, sizeof magic);
+    header->magic = read_u32_le(magic);
 
     // Version number
     unsigned char version[sizeof header->version];

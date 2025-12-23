@@ -1,6 +1,8 @@
 #ifndef UNARCHIVER_H
 #define UNARCHIVER_H
 
+#include <arch/arch_errors.h>
+
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -10,8 +12,8 @@ extern "C" {
 
 typedef struct Archive Archive;
 
-Archive* arch_open(const char* path);
-bool arch_retrieveNextFile(Archive* archive, const char* output_dir);
+ArchResult arch_open(const char* path, Archive** outArchive);
+ArchResult arch_retrieveNextFile(Archive* archive, const char* output_dir);
 
 size_t arch_getFileCount(Archive* archive);
 
